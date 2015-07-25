@@ -25,7 +25,7 @@ Have fun...
 Example INI file
 ----------------
 
-```C++
+```INI
 ; This is a comment starting with an semicolon.
 # You could also use the diamond as well.
 # But please be sure not to put anything in front.
