@@ -6,6 +6,11 @@ to eliminate my Qt dependency. Sure, I could use one of
 the thousand already existing ones which are also small
 and cute, but there is no fun along this path.
 
+Build status
+------------
+
+* master [![Build Status](https://travis-ci.org/r2p2/rsettings.svg?branch=master)](https://travis-ci.org/r2p2/rsettings)
+
 Features
 --------
 
