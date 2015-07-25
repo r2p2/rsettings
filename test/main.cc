@@ -73,10 +73,10 @@ bool test_add_global_keys()
 
 int main()
 {
-	if (not test_init_rsettings)
+	if (not test_init_rsettings())
 		return 1;
 
-	if (not test_init_rsettings)
+	if (not test_init_rsettings())
 		return 2;
 
 	if (not test_add_global_keys())
