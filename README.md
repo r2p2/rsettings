@@ -10,6 +10,7 @@ Build status
 ------------
 
 * master [![Build Status](https://travis-ci.org/r2p2/rsettings.svg?branch=master)](https://travis-ci.org/r2p2/rsettings)
+* develop [![Build Status](https://travis-ci.org/r2p2/rsettings.svg?branch=develop)](https://travis-ci.org/r2p2/rsettings)
 
 Features
 --------
