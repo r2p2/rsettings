@@ -1,5 +1,5 @@
-rsettings
-=========
+RSettings (0.1.0)
+=================
 
 Is yet another ini file format parser which was created
 to eliminate my Qt dependency. Sure, I could use one of
