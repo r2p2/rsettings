@@ -120,7 +120,7 @@ bool test_parse_comments()
 	std::string const ini_data = ";one comment\n"
 		"key1 = value1\n"
 		"# another one\n"
-		"key2: value2";
+		"key2: value2\n"
 		"  # last but not least";
 	RSettings settings;
 
