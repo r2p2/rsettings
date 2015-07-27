@@ -143,6 +143,32 @@ bool test_parse_comments()
 	return true;
 }
 
+bool test_parse_utf8()
+{
+	std::string const ini_data =
+		"name = Müller\n"
+		"forename: Strauß";
+	RSettings settings;
+
+	settings.parse(ini_data);
+
+	if (settings.keys().size() != 2)
+		return false;
+
+	if (not settings.groups().empty())
+		return false;
+
+	std::string value1 = settings.get<std::string>("name", "");
+	if (not (value1 == "Müller"))
+		return false;
+
+	std::string value2 = settings.get<std::string>("forename", "");
+	if (not (value2 == "Strauß"))
+		return false;
+
+	return true;
+}
+
 bool test_tokenizer()
 {
 	std::string s = "aAaA:bBbB";
@@ -202,6 +228,9 @@ int main()
 
 	if (not test_parse_comments())
 		return 7;
+
+	if (not test_parse_utf8())
+		return 8;
 
 	return 0;
 }
