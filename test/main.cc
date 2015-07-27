@@ -71,6 +71,63 @@ bool test_add_global_keys()
 	return true;
 }
 
+bool test_parse_single_variable()
+{
+	std::string const ini_data = "key = value";
+	RSettings settings;
+
+	settings.parse(ini_data);
+
+	if (settings.keys().size() != 1)
+		return false;
+
+	if (not settings.groups().empty())
+		return false;
+
+	std::string value = settings.get<std::string>("key", "");
+	if (not (value == "value"))
+		return false;
+
+	return true;
+}
+
+bool test_tokenizer()
+{
+	std::string s = "aAaA:bBbB";
+
+	RTokenizer tzr;
+	tzr.add_rule("A", "A", "aA");
+	tzr.add_rule("A", "S", "");
+	tzr.add_rule("S", "S", " :");
+	tzr.add_rule("S", "B", "Bb");
+	tzr.add_rule("B", "B", "");
+	tzr.start("A", s);
+
+	RToken token = tzr.next();
+	if (token.type() != "A" or token.value() != "aAaA")
+	{
+		std::cout << "expected aA got " << token.value() << std::endl;
+		return false;
+	}
+
+	token = tzr.next();
+	if (token.type() != "S" or token.value() != ":")
+	{
+		std::cout << "expected : got " << token.value() << std::endl;
+		return false;
+	}
+
+	token = tzr.next();
+	if (token.type() != "B" or token.value() != "bBbB")
+	{
+		std::cout << "expected Bb got " << token.value() << std::endl;
+		return false;
+	}
+
+	return true;
+}
+
+
 int main()
 {
 	if (not test_init_rsettings())
@@ -81,6 +138,12 @@ int main()
 
 	if (not test_add_global_keys())
 		return 3;
+
+	if (not test_tokenizer())
+		return 4;
+
+	if (not test_parse_single_variable())
+		return 5;
 
 	return 0;
 }

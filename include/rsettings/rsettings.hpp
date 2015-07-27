@@ -1,5 +1,7 @@
 #pragma once
 
+#include "rtokenizer.hpp"
+
 #include <map>
 #include <vector>
 #include <string>
@@ -9,11 +11,55 @@ class RSettings
 {
 public:
 	RSettings()
+	: _values()
+	, _tokenizer()
 	{
+		_tokenizer.add_rule("root"      , "root"      , " \t\n");
+		_tokenizer.add_rule("root"      , "comment"   , ";#");
+		_tokenizer.add_rule("comment"   , "root"      , "\n");
+		_tokenizer.add_rule("comment"   , "comment"   , "");
+		_tokenizer.add_rule("root"      , "key"       , "");
+		_tokenizer.add_rule("key"       , "separator" , " \t=:");
+		_tokenizer.add_rule("separator" , "separator" , " \t=:");
+		_tokenizer.add_rule("separator" , "value"     , "");
+		_tokenizer.add_rule("value"     , "value"     , "");
+		_tokenizer.add_rule("value"     , "root"      , "\n");
 	}
 
 	~RSettings()
 	{
+	}
+
+	void parse(std::string const& ini)
+	{
+		enum State { Root, ReadValue } state;
+		
+		_tokenizer.start("root", ini);
+
+		RToken token_last_key;
+
+		state = Root;
+		while (_tokenizer.has_next())
+		{
+			RToken token = _tokenizer.next();
+
+			if (state == Root)
+			{
+				if (token.type() == "key")
+				{
+					token_last_key = token;
+					state = ReadValue;
+				}
+			}
+			else if (state == ReadValue)
+			{
+				if (token.type() == "value")
+				{
+					update(token_last_key.value(), token.value());
+					state = Root;
+				}
+			}
+		}
 	}
 
 	std::vector<std::string> keys() const
@@ -60,4 +106,5 @@ public:
 
 private:
 	std::map<std::string, std::string> _values;
+	RTokenizer _tokenizer;
 };
