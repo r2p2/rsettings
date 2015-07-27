@@ -76,6 +76,9 @@ class RTokenizer
 {
 public:
 	RTokenizer()
+	: _rules()
+	, _tokens()
+	, _tk_it()
 	{
 	}
 
