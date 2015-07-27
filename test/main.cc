@@ -115,6 +115,34 @@ bool test_parse_two_variables()
 	return true;
 }
 
+bool test_parse_comments()
+{
+	std::string const ini_data = ";one comment\n"
+		"key1 = value1\n"
+		"# another one\n"
+		"key2: value2";
+		"  # last but not least";
+	RSettings settings;
+
+	settings.parse(ini_data);
+
+	if (settings.keys().size() != 2)
+		return false;
+
+	if (not settings.groups().empty())
+		return false;
+
+	std::string value1 = settings.get<std::string>("key1", "");
+	if (not (value1 == "value1"))
+		return false;
+
+	std::string value2 = settings.get<std::string>("key2", "");
+	if (not (value2 == "value2"))
+		return false;
+
+	return true;
+}
+
 bool test_tokenizer()
 {
 	std::string s = "aAaA:bBbB";
@@ -171,6 +199,9 @@ int main()
 
 	if (not test_parse_two_variables())
 		return 6;
+
+	if (not test_parse_comments())
+		return 7;
 
 	return 0;
 }
