@@ -1,5 +1,5 @@
-rsettings
-=========
+RSettings (0.1.0)
+=================
 
 Is yet another ini file format parser which was created
 to eliminate my Qt dependency. Sure, I could use one of
@@ -10,11 +10,12 @@ Build status
 ------------
 
 * master [![Build Status](https://travis-ci.org/r2p2/rsettings.svg?branch=master)](https://travis-ci.org/r2p2/rsettings)
+* develop [![Build Status](https://travis-ci.org/r2p2/rsettings.svg?branch=develop)](https://travis-ci.org/r2p2/rsettings)
 
 Features
 --------
 
-All the fancy things you can see in this document are
+All the fancy examples you can see in this document are
 just a way to specify what I want to achieve on one day
 or another with this library. I don't know when the real
 api will match the following examples and maybe they will
@@ -25,7 +26,17 @@ how, you have to look into the source code for now. As
 soon as I reach version 1, I promise to keep this readme
 file in sync with the code.
 
-Have fun...
+### Currently implemented
+
+* Comments which start at the beginning of a line
+* Key/value pairs separated by `:` or `=`
+* UTF8 seems to work by magic
+* Values of the folowing types: string, integer
+
+### Not implemented
+
+* Groups
+* Converting `true` and `false` into equivalent boolean type
 
 Example INI file
 ----------------
