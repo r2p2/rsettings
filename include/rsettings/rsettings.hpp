@@ -22,8 +22,8 @@ public:
 		_tokenizer.add_rule("key"       , "separator" , " \t=:");
 		_tokenizer.add_rule("separator" , "separator" , " \t=:");
 		_tokenizer.add_rule("separator" , "value"     , "");
-		_tokenizer.add_rule("value"     , "value"     , "");
 		_tokenizer.add_rule("value"     , "root"      , "\n");
+		_tokenizer.add_rule("value"     , "value"     , "");
 	}
 
 	~RSettings()
