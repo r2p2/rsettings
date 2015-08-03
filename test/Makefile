@@ -6,7 +6,7 @@ INCLUDES=-I../include
 
 all: run-test
 
-$(TARGET_PATH)/$(TARGET): main.cc ../include/rsettings/rsettings.hpp ../include/rsettings/rtokenizer.hpp
+$(TARGET_PATH)/$(TARGET): main.cc ../include/rsettings/rsettings.hpp
 	mkdir -p $(TARGET_PATH)
 	$(CXX) -o $(TARGET_PATH)/$(TARGET) $(INCLUDES) -ggdb -O0 -Wall -Wextra -Weffc++ main.cc
 
