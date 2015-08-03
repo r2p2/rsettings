@@ -29,7 +29,8 @@ file in sync with the code.
 ### Currently implemented
 
 * Comments which start at the beginning of a line
-* Key/value pairs separated by `:` or `=`
+* `;` and `#` can be used to start a commet
+* Key/value pairs separated by `=`
 * UTF8 seems to work by magic
 * Values of the folowing types: string, integer
 
@@ -45,16 +46,16 @@ Example INI file
 ; This is a comment starting with an semicolon.
 # You could also use the diamond as well.
 # But please be sure not to put anything in front.
-root_key = value
-numbers = 1024
-boolean1 = true
-boolean2 = t
-boolean3 = 1
+root_key=value
+numbers=1024
+boolean1=true
+boolean2=t
+boolean3=1
 
 [group]
 # Does not hurt to put comments in a group
-group_key = "another \"small\" value"
-with_line_breaks = long\ntext
+group_key="another \"small\" value"
+with_line_breaks=long\ntext
 ```
 
 Example usage

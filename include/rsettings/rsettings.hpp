@@ -1,29 +1,18 @@
 #pragma once
 
-#include "rtokenizer.hpp"
-
 #include <map>
 #include <vector>
 #include <string>
 #include <sstream>
+
+#include <iostream>
 
 class RSettings
 {
 public:
 	RSettings()
 	: _values()
-	, _tokenizer()
 	{
-		_tokenizer.add_rule("root"      , "root"      , " \t\n");
-		_tokenizer.add_rule("root"      , "comment"   , ";#");
-		_tokenizer.add_rule("comment"   , "root"      , "\n");
-		_tokenizer.add_rule("comment"   , "comment"   , "");
-		_tokenizer.add_rule("root"      , "key"       , "");
-		_tokenizer.add_rule("key"       , "separator" , " \t=:");
-		_tokenizer.add_rule("separator" , "separator" , " \t=:");
-		_tokenizer.add_rule("separator" , "value"     , "");
-		_tokenizer.add_rule("value"     , "root"      , "\n");
-		_tokenizer.add_rule("value"     , "value"     , "");
 	}
 
 	~RSettings()
@@ -32,32 +21,28 @@ public:
 
 	void parse(std::string const& ini)
 	{
-		enum State { Root, ReadValue } state;
-		
-		_tokenizer.start("root", ini);
+		std::stringstream ss(ini);
+		std::string line;
 
-		RToken token_last_key;
-
-		state = Root;
-		while (_tokenizer.has_next())
+		while(std::getline(ss, line))
 		{
-			RToken token = _tokenizer.next();
-
-			if (state == Root)
+			if (line.empty())
 			{
-				if (token.type() == "key")
-				{
-					token_last_key = token;
-					state = ReadValue;
-				}
+				continue;
 			}
-			else if (state == ReadValue)
+
+			if (line[0] == ';' or line[0] == '#')
 			{
-				if (token.type() == "value")
-				{
-					update(token_last_key.value(), token.value());
-					state = Root;
-				}
+				continue;
+			}
+
+			size_t pos_assign = line.find('=');
+			if (pos_assign != std::string::npos)
+			{
+				std::string const key = line.substr(0, pos_assign);
+				std::string const val = line.substr(pos_assign + 1);
+
+				update(key, val);
 			}
 		}
 	}
@@ -106,5 +91,4 @@ public:
 
 private:
 	std::map<std::string, std::string> _values;
-	RTokenizer _tokenizer;
 };
