@@ -28,6 +28,7 @@ file in sync with the code.
 
 ### Currently implemented
 
+* Groups
 * Comments which start at the beginning of a line
 * `;` and `#` can be used to start a commet
 * Key/value pairs separated by `=`
@@ -36,7 +37,6 @@ file in sync with the code.
 
 ### Not implemented
 
-* Groups
 * Converting `true` and `false` into equivalent boolean type
 
 Example INI file

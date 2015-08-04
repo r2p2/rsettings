@@ -169,6 +169,60 @@ bool test_parse_utf8()
 	return true;
 }
 
+bool test_parse_groups()
+{
+	std::string const ini_data =
+		"r_key=r_val\n"
+		"[grp1]\n"
+		";start of the first group\n"
+		"g1_key=g1_val\n"
+		"[grp2]\n"
+		"g2_key=g2_val\n"
+		"g3_key=g3_val";
+	RSettings settings;
+
+	settings.parse(ini_data);
+	if (settings.keys().size() != 1)
+		return false;
+
+	if (settings.groups().size() != 2)
+		return false;
+
+	std::string value1 = settings.get<std::string>("r_key", "");
+	if (not (value1 == "r_val"))
+		return false;
+
+	settings.begin_group("grp1");
+
+	if (settings.keys().size() != 1)
+		return false;
+
+	if (settings.groups().size() != 2)
+		return false;
+
+	std::string value2 = settings.get<std::string>("g1_key", "");
+	if (not (value2 == "g1_val"))
+		return false;
+
+	settings.begin_group("grp2");
+
+	if (settings.keys().size() != 2)
+		return false;
+
+	if (settings.groups().size() != 2)
+		return false;
+
+	std::string value3 = settings.get<std::string>("g2_key", "");
+	if (not (value3 == "g2_val"))
+		return false;
+
+	std::string value4 = settings.get<std::string>("g3_key", "");
+	if (not (value4 == "g3_val"))
+		return false;
+
+	return true;
+}
+
 int main()
 {
 	if (not test_init_rsettings())
@@ -191,6 +245,9 @@ int main()
 
 	if (not test_parse_utf8())
 		return 8;
+	
+	if (not test_parse_groups())
+		return 9;
 
 	return 0;
 }
