@@ -9,9 +9,12 @@
 
 class RSettings
 {
+	typedef std::map<std::string, std::string> map_str_str_t;
+	typedef std::map<std::string, map_str_str_t> map_str_map_t;
 public:
 	RSettings()
 	: _values()
+	, _current_group()
 	{
 	}
 
@@ -36,6 +39,14 @@ public:
 				continue;
 			}
 
+			if (line[0] == '[')
+			{
+				size_t pos_bracket = line.find(']');
+				std::string const grp = line.substr(1, pos_bracket-1);
+				begin_group(grp);
+				continue;
+			}
+
 			size_t pos_assign = line.find('=');
 			if (pos_assign != std::string::npos)
 			{
@@ -45,14 +56,26 @@ public:
 				update(key, val);
 			}
 		}
+
+		end_group();
 	}
 
-	std::vector<std::string> keys() const
+	std::vector<std::string> keys(std::string const& group) const
 	{
 		std::vector<std::string> ks;
-		std::map<std::string, std::string>::const_iterator it;
+
+		map_str_map_t::const_iterator it_group;
+		it_group = _values.find(group);
+
+		if (it_group == _values.end())
+		{
+			return ks;
+		}
+
+		map_str_str_t::const_iterator it;
 		
-		for(it = _values.begin(); it != _values.end(); ++it)
+		for(it = it_group->second.begin();
+				it != it_group->second.end(); ++it)
 		{
 			ks.push_back(it->first);
 		}
@@ -60,35 +83,86 @@ public:
 		return ks;
 	}
 
+	std::vector<std::string> keys() const
+	{
+		return keys(_current_group);
+	}
+
 	std::vector<std::string> groups() const
 	{
-		return std::vector<std::string>();
+		std::vector<std::string> grps;
+
+		map_str_map_t::const_iterator it;
+		for (it = _values.begin(); it != _values.end(); ++it)
+		{
+			if (it->first.empty())
+				continue;
+
+			grps.push_back(it->first);
+		}
+
+		return grps;
+	}
+
+	template<class T>
+	T get(std::string const& group, std::string const& key,
+			T const& default_value) const
+	{
+		map_str_map_t::const_iterator it_group;
+		it_group = _values.find(group);
+
+		if (it_group == _values.end())
+			return default_value;
+
+		map_str_str_t const& map_in_grp = it_group->second;
+		map_str_str_t::const_iterator it_key;
+		it_key = map_in_grp.find(key);
+
+		if (it_key == map_in_grp.end())
+			return default_value;
+
+		T type_element;
+		std::stringstream ss(it_key->second);
+		ss >> type_element;
+		
+		return type_element;
+		
 	}
 
 	template<class T>
 	T get(std::string const& key, T const& default_value) const
 	{
-		std::map<std::string, std::string>::const_iterator it;
-		it = _values.find(key);
-		if (it == _values.end())
-			return default_value;
+		return get(_current_group, key, default_value);
+	}
 
-		T type_element;
-		std::stringstream ss(it->second);
-		ss >> type_element;
-		
-		return type_element;
+	template<class T>
+	void update(std::string const& group, std::string const& key,
+			T const& value)
+	{
+		std::stringstream ss;
+		ss << value;
+
+		_values[group][key] = ss.str();
+
 	}
 
 	template<class T>
 	void update(std::string const& key, T const& value)
 	{
-		std::stringstream ss;
-		ss << value;
+		update(_current_group, key, value);
+	}
 
-		_values[key] = ss.str();
+	void begin_group(std::string const& group)
+	{
+		_current_group = group;
+	}
+
+	void end_group()
+	{
+		_current_group.clear();
 	}
 
 private:
-	std::map<std::string, std::string> _values;
+	map_str_map_t _values;
+	std::string _current_group;
 };
