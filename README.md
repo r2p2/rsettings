@@ -38,6 +38,8 @@ file in sync with the code.
 ### Not implemented
 
 * Converting `true` and `false` into equivalent boolean type
+* Interpreting line breaks in values
+* Writing RSettings back to string
 
 Example INI file
 ----------------
