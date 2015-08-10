@@ -34,12 +34,17 @@ file in sync with the code.
 * Key/value pairs separated by `=`
 * UTF8 seems to work by magic
 * Values of the folowing types: string, integer
+* Writing RSettings back to string
 
 ### Not implemented
 
 * Converting `true` and `false` into equivalent boolean type
 * Interpreting line breaks in values
-* Writing RSettings back to string
+
+### Known bugs
+
+* If an RSettings object is written back into string it ignores comments and
+  the order used in the original file.
 
 Example INI file
 ----------------
