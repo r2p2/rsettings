@@ -169,6 +169,39 @@ bool test_parse_utf8()
 	return true;
 }
 
+bool test_parse_result()
+{
+	std::string const ini_data1 =
+		"name=Müller\n"
+		"forename=Strauß";
+
+	std::string const ini_data2 =
+		"name=Müller\n"
+		"forename Strauß";
+
+	std::string const ini_data3 =
+		"[grp\n"
+		"name=Müller\n"
+		"forename=Strauß";
+
+	RSettings settings;
+
+	Result result1 = settings.parse(ini_data1);
+
+	if (not result1)
+		return false;
+
+	Result result2 = settings.parse(ini_data2);
+	if (result2)
+		return false;
+
+	Result result3 = settings.parse(ini_data3);
+	if (result3)
+		return false;
+
+	return true;
+}
+
 bool test_parse_groups()
 {
 	std::string const ini_data =
@@ -249,5 +282,7 @@ int main()
 	if (not test_parse_groups())
 		return 9;
 
+	if (not test_parse_result())
+		return 10;
 	return 0;
 }
