@@ -1,5 +1,7 @@
 #pragma once
 
+#include "result.hpp"
+
 #include <map>
 #include <vector>
 #include <string>
@@ -22,13 +24,17 @@ public:
 	{
 	}
 
-	void parse(std::string const& ini)
+	Result parse(std::string const& ini)
 	{
+		int line_nr = 0;
+
 		std::stringstream ss(ini);
 		std::string line;
 
 		while(std::getline(ss, line))
 		{
+			++line_nr;
+
 			if (line.empty())
 			{
 				continue;
@@ -42,8 +48,25 @@ public:
 			if (line[0] == '[')
 			{
 				size_t pos_bracket = line.find(']');
+				if (pos_bracket == std::string::npos)
+				{
+					return Result(line_nr,
+							"Missing square bracket "
+							"to end group name.");
+				}
+
 				std::string const grp = line.substr(1, pos_bracket-1);
-				begin_group(grp);
+
+				if (not grp.empty())
+				{
+					begin_group(grp);
+				}
+				else
+				{
+					return Result(line_nr,
+							"An empty string is not "
+							"valid as group name.");
+				}
 				continue;
 			}
 
@@ -53,11 +76,28 @@ public:
 				std::string const key = line.substr(0, pos_assign);
 				std::string const val = line.substr(pos_assign + 1);
 
-				update(key, val);
+				if (not key.empty())
+				{
+					update(key, val);
+				}
+				else
+				{
+					return Result(line_nr,
+							"An empty string is not "
+							"valid as key name.");
+				}
+			}
+			else
+			{
+				return Result(line_nr,
+						"Non empty line does not contain "
+						"a valid key-value pair.");
 			}
 		}
 
 		end_group();
+
+		return Result();
 	}
 
 	std::string write()

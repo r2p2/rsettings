@@ -17,7 +17,7 @@ bool test_access_default_values()
 {
 	std::string const default_string = "default";
 	int const default_int = 1337;
-	
+
 	RSettings settings;
 
 	std::string const string_value = settings.get<std::string>("global_str",
@@ -29,7 +29,7 @@ bool test_access_default_values()
 	int const int_value = settings.get<int>("global_int", default_int);
 	if (not (int_value == default_int))
 		return false;
-	
+
 	if (not settings.keys().empty())
 		return false;
 
@@ -43,10 +43,10 @@ bool test_add_global_keys()
 {
 	std::string const default_string = "default";
 	int const default_int = 1337;
-	
+
 	std::string const update_string = "string_value";
 	int const update_int = 42;
-	
+
 	RSettings settings;
 
 	settings.update("global_str", update_string);
@@ -67,7 +67,7 @@ bool test_add_global_keys()
 
 	if (not (int_value == update_int))
 		return false;
-	
+
 	return true;
 }
 
@@ -169,6 +169,39 @@ bool test_parse_utf8()
 	return true;
 }
 
+bool test_parse_result()
+{
+	std::string const ini_data1 =
+		"name=Müller\n"
+		"forename=Strauß";
+
+	std::string const ini_data2 =
+		"name=Müller\n"
+		"forename Strauß";
+
+	std::string const ini_data3 =
+		"[grp\n"
+		"name=Müller\n"
+		"forename=Strauß";
+
+	RSettings settings;
+
+	Result result1 = settings.parse(ini_data1);
+
+	if (not result1)
+		return false;
+
+	Result result2 = settings.parse(ini_data2);
+	if (result2)
+		return false;
+
+	Result result3 = settings.parse(ini_data3);
+	if (result3)
+		return false;
+
+	return true;
+}
+
 bool test_parse_groups()
 {
 	std::string const ini_data =
@@ -223,6 +256,29 @@ bool test_parse_groups()
 	return true;
 }
 
+bool test_parse_errors()
+{
+	std::string const ini_data =
+		"r_key=r_val\n"
+		"[]\n"
+		";start of the first group\n"
+		"g1_key=g1_val\n"
+		"[grp2]\n"
+		"g2_key=g2_val\n"
+		"g3_key=g3_val";
+	RSettings settings;
+
+	Result res = settings.parse(ini_data);
+	if (res.is_successful())
+		return false;
+
+	if (res.reason() != "Error in line 2: An empty string is not valid as "
+			"group name.\n")
+		return false;
+
+	return true;
+}
+
 int main()
 {
 	if (not test_init_rsettings())
@@ -245,9 +301,15 @@ int main()
 
 	if (not test_parse_utf8())
 		return 8;
-	
+
 	if (not test_parse_groups())
 		return 9;
+
+	if (not test_parse_result())
+		return 10;
+
+	if (not test_parse_errors())
+		return 11;
 
 	return 0;
 }
