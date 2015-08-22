@@ -3,6 +3,9 @@
 #include <string>
 #include <sstream>
 
+namespace rsettings
+{
+
 class Result
 {
 public:
@@ -38,3 +41,5 @@ private:
 	std::string const _reason;
 	int const _line_nr;
 };
+
+}

@@ -9,18 +9,21 @@
 
 #include <iostream>
 
-class RSettings
+namespace rsettings
+{
+
+class Ini
 {
 	typedef std::map<std::string, std::string> map_str_str_t;
 	typedef std::map<std::string, map_str_str_t> map_str_map_t;
 public:
-	RSettings()
+	Ini()
 	: _values()
 	, _current_group()
 	{
 	}
 
-	~RSettings()
+	~Ini()
 	{
 	}
 
@@ -264,3 +267,5 @@ private:
 	map_str_map_t _values;
 	std::string _current_group;
 };
+
+}
