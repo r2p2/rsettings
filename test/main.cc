@@ -256,6 +256,29 @@ bool test_parse_groups()
 	return true;
 }
 
+bool test_parse_errors()
+{
+	std::string const ini_data =
+		"r_key=r_val\n"
+		"[]\n"
+		";start of the first group\n"
+		"g1_key=g1_val\n"
+		"[grp2]\n"
+		"g2_key=g2_val\n"
+		"g3_key=g3_val";
+	RSettings settings;
+
+	Result res = settings.parse(ini_data);
+	if (res.is_successful())
+		return false;
+
+	if (res.reason() != "Error in line 2: An empty string is not valid as "
+			"group name.\n")
+		return false;
+
+	return true;
+}
+
 int main()
 {
 	if (not test_init_rsettings())
@@ -284,5 +307,9 @@ int main()
 
 	if (not test_parse_result())
 		return 10;
+
+	if (not test_parse_errors())
+		return 11;
+
 	return 0;
 }
