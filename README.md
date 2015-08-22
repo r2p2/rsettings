@@ -35,10 +35,10 @@ file in sync with the code.
 * UTF8 seems to work by magic
 * Values of the folowing types: string, integer
 * Writing RSettings back to string
+* Converting `true` and `false` into equivalent boolean type
 
 ### Not implemented
 
-* Converting `true` and `false` into equivalent boolean type
 * Interpreting line breaks in values
 
 ### Known bugs
