@@ -1,8 +1,8 @@
-#include <rsettings/rsettings.hpp>
+#include <rsettings/ini.hpp>
 
-bool test_init_rsettings()
+bool test_init_Ini()
 {
-	RSettings settings;
+	rsettings::Ini settings;
 
 	if (not settings.keys().empty())
 		return false;
@@ -18,7 +18,7 @@ bool test_access_default_values()
 	std::string const default_string = "default";
 	int const default_int = 1337;
 
-	RSettings settings;
+	rsettings::Ini settings;
 
 	std::string const string_value = settings.get<std::string>("global_str",
 			default_string);
@@ -47,7 +47,7 @@ bool test_add_global_keys()
 	std::string const update_string = "string_value";
 	int const update_int = 42;
 
-	RSettings settings;
+	rsettings::Ini settings;
 
 	settings.update("global_str", update_string);
 	settings.update("global_int", update_int);
@@ -74,7 +74,7 @@ bool test_add_global_keys()
 bool test_parse_single_variable()
 {
 	std::string const ini_data = "key=value";
-	RSettings settings;
+	rsettings::Ini settings;
 
 	settings.parse(ini_data);
 
@@ -94,7 +94,7 @@ bool test_parse_single_variable()
 bool test_parse_two_variables()
 {
 	std::string const ini_data = "key1=value1\nkey2=value2";
-	RSettings settings;
+	rsettings::Ini settings;
 
 	settings.parse(ini_data);
 
@@ -122,7 +122,7 @@ bool test_parse_comments()
 		"# another one\n"
 		"key2=value2\n"
 		"# last but not least";
-	RSettings settings;
+	rsettings::Ini settings;
 
 	settings.parse(ini_data);
 
@@ -148,7 +148,7 @@ bool test_parse_utf8()
 	std::string const ini_data =
 		"name=Müller\n"
 		"forename=Strauß";
-	RSettings settings;
+	rsettings::Ini settings;
 
 	settings.parse(ini_data);
 
@@ -184,18 +184,18 @@ bool test_parse_result()
 		"name=Müller\n"
 		"forename=Strauß";
 
-	RSettings settings;
+	rsettings::Ini settings;
 
-	Result result1 = settings.parse(ini_data1);
+	rsettings::Result result1 = settings.parse(ini_data1);
 
 	if (not result1)
 		return false;
 
-	Result result2 = settings.parse(ini_data2);
+	rsettings::Result result2 = settings.parse(ini_data2);
 	if (result2)
 		return false;
 
-	Result result3 = settings.parse(ini_data3);
+	rsettings::Result result3 = settings.parse(ini_data3);
 	if (result3)
 		return false;
 
@@ -212,7 +212,7 @@ bool test_parse_groups()
 		"[grp2]\n"
 		"g2_key=g2_val\n"
 		"g3_key=g3_val";
-	RSettings settings;
+	rsettings::Ini settings;
 
 	settings.parse(ini_data);
 	if (settings.keys().size() != 1)
@@ -266,9 +266,9 @@ bool test_parse_errors()
 		"[grp2]\n"
 		"g2_key=g2_val\n"
 		"g3_key=g3_val";
-	RSettings settings;
+	rsettings::Ini settings;
 
-	Result res = settings.parse(ini_data);
+	rsettings::Result res = settings.parse(ini_data);
 	if (res.is_successful())
 		return false;
 
@@ -281,10 +281,10 @@ bool test_parse_errors()
 
 int main()
 {
-	if (not test_init_rsettings())
+	if (not test_init_Ini())
 		return 1;
 
-	if (not test_init_rsettings())
+	if (not test_init_Ini())
 		return 2;
 
 	if (not test_add_global_keys())
