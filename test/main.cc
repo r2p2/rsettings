@@ -279,6 +279,26 @@ bool test_parse_errors()
 	return true;
 }
 
+bool test_bool()
+{
+	std::string const ini_data = "key=true";
+	rsettings::Ini settings;
+
+	settings.parse(ini_data);
+
+	if (settings.keys().size() != 1)
+		return false;
+
+	if (not settings.groups().empty())
+		return false;
+
+	bool value = settings.get<bool>("key", false);
+	if (not value)
+		return false;
+
+	return true;
+}
+
 int main()
 {
 	if (not test_init_Ini())
@@ -310,6 +330,9 @@ int main()
 
 	if (not test_parse_errors())
 		return 11;
+
+	if (not test_bool())
+		return 12;
 
 	return 0;
 }
