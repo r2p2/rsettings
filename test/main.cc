@@ -17,7 +17,7 @@ bool test_access_default_values()
 {
 	std::string const default_string = "default";
 	int const default_int = 1337;
-	
+
 	RSettings settings;
 
 	std::string const string_value = settings.get<std::string>("global_str",
@@ -29,7 +29,7 @@ bool test_access_default_values()
 	int const int_value = settings.get<int>("global_int", default_int);
 	if (not (int_value == default_int))
 		return false;
-	
+
 	if (not settings.keys().empty())
 		return false;
 
@@ -43,10 +43,10 @@ bool test_add_global_keys()
 {
 	std::string const default_string = "default";
 	int const default_int = 1337;
-	
+
 	std::string const update_string = "string_value";
 	int const update_int = 42;
-	
+
 	RSettings settings;
 
 	settings.update("global_str", update_string);
@@ -67,7 +67,7 @@ bool test_add_global_keys()
 
 	if (not (int_value == update_int))
 		return false;
-	
+
 	return true;
 }
 
@@ -278,7 +278,7 @@ int main()
 
 	if (not test_parse_utf8())
 		return 8;
-	
+
 	if (not test_parse_groups())
 		return 9;
 
