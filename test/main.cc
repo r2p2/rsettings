@@ -1,338 +1,139 @@
 #include <rsettings/ini.hpp>
+#include <gtest/gtest.h>
 
-bool test_init_Ini()
+class IniTest : public ::testing::Test
 {
-	rsettings::Ini settings;
+protected:
+	IniTest()
+	: ::testing::Test()
+	, m_generic_ini_data()
+	{}
 
-	if (not settings.keys().empty())
-		return false;
+	virtual void SetUp()
+	{
+		m_generic_ini_data =
+			"# Comments can be placed at the top.\n"
+			"title=RSettings\n"
+			"build=1337\n"
+			"# Comments can be placed inside the root section\n"
+			"# wrap over multiple lines.\n"
+			"\n"
+			"# Empty lines are ignored"
+			"   \t \n"
+			"# Even if there are some whitespace characters.\n"
+			"[section I]\n"
+			"# Comments also work in sections.\n"
+			"section_variable=14.221\n"
+			"boolean_int_true=1\n"
+			"boolean_int_false=0\n"
+			"boolean_word_true=true\n"
+			"boolean_word_false=false\n"
+			"\n"
+			"[section II]\n"
+			"special_characters=ピース\n";
+	}
 
-	if (not settings.groups().empty())
-		return false;
+	std::string ini_data() const
+	{
+		return m_generic_ini_data;
+	}
 
-	return true;
+private:
+	std::string m_generic_ini_data;
+};
+
+TEST_F(IniTest, DefaultContructor)
+{
+	rsettings::Ini const settings;
+
+	EXPECT_TRUE(settings.keys().empty());
+	EXPECT_TRUE(settings.groups().empty());
 }
 
-bool test_access_default_values()
+TEST_F(IniTest, DefaultValues)
 {
-	std::string const default_string = "default";
-	int const default_int = 1337;
-
 	rsettings::Ini settings;
+	settings.parse(ini_data());
 
-	std::string const string_value = settings.get<std::string>("global_str",
-			default_string);
-
-	if (not (string_value == default_string))
-		return false;
-
-	int const int_value = settings.get<int>("global_int", default_int);
-	if (not (int_value == default_int))
-		return false;
-
-	if (not settings.keys().empty())
-		return false;
-
-	if (not settings.groups().empty())
-		return false;
-
-	return true;
+	EXPECT_STREQ("default", settings.get<std::string>("does_not_exist",
+				"default").c_str());
+	EXPECT_EQ(1337, settings.get<int>("does_not_exist", 1337));
+	EXPECT_EQ(true, settings.get<int>("does_not_exist", true));
+	EXPECT_EQ(false, settings.get<int>("does_not_exist", false));
 }
 
-bool test_add_global_keys()
+TEST_F(IniTest, GroupsAndKeys)
 {
-	std::string const default_string = "default";
-	int const default_int = 1337;
-
-	std::string const update_string = "string_value";
-	int const update_int = 42;
-
 	rsettings::Ini settings;
+	settings.parse(ini_data());
 
-	settings.update("global_str", update_string);
-	settings.update("global_int", update_int);
+	EXPECT_EQ(2, settings.groups().size());
+	EXPECT_EQ(2, settings.keys().size());
 
-	if (settings.keys().size() != 2)
-		return false;
-
-	if (not settings.groups().empty())
-		return false;
-
-	std::string const string_value = settings.get<std::string>("global_str",
-			default_string);
-	int const int_value = settings.get<int>("global_int", default_int);
-
-	if (not (string_value == update_string))
-		return false;
-
-	if (not (int_value == update_int))
-		return false;
-
-	return true;
+	settings.begin_group("section I");
+	EXPECT_EQ(5, settings.keys().size());
 }
 
-bool test_parse_single_variable()
+TEST_F(IniTest, AddKeysToRoot)
 {
-	std::string const ini_data = "key=value";
 	rsettings::Ini settings;
+	settings.parse(ini_data());
 
-	settings.parse(ini_data);
+	settings.update("global_str", "new_string");
+	settings.update("global_int", 1337);
 
-	if (settings.keys().size() != 1)
-		return false;
-
-	if (not settings.groups().empty())
-		return false;
-
-	std::string value = settings.get<std::string>("key", "");
-	if (not (value == "value"))
-		return false;
-
-	return true;
+	EXPECT_STREQ("new_string", settings.get<std::string>("global_str",
+				"default").c_str());
+	EXPECT_EQ(1337, settings.get<int>("global_int", 0));
 }
 
-bool test_parse_two_variables()
+TEST_F(IniTest, Utf8)
 {
-	std::string const ini_data = "key1=value1\nkey2=value2";
 	rsettings::Ini settings;
+	settings.parse(ini_data());
 
-	settings.parse(ini_data);
+	settings.begin_group("section II");
 
-	if (settings.keys().size() != 2)
-		return false;
-
-	if (not settings.groups().empty())
-		return false;
-
-	std::string value1 = settings.get<std::string>("key1", "");
-	if (not (value1 == "value1"))
-		return false;
-
-	std::string value2 = settings.get<std::string>("key2", "");
-	if (not (value2 == "value2"))
-		return false;
-
-	return true;
+	EXPECT_STREQ("ピース", settings.get<std::string>("special_characters",
+				"default").c_str());
 }
 
-bool test_parse_comments()
+TEST_F(IniTest, Boolean)
 {
-	std::string const ini_data = ";one comment\n"
-		"key1=value1\n"
-		"# another one\n"
-		"key2=value2\n"
-		"# last but not least";
 	rsettings::Ini settings;
+	settings.parse(ini_data());
 
-	settings.parse(ini_data);
+	settings.begin_group("section I");
 
-	if (settings.keys().size() != 2)
-		return false;
-
-	if (not settings.groups().empty())
-		return false;
-
-	std::string value1 = settings.get<std::string>("key1", "");
-	if (not (value1 == "value1"))
-		return false;
-
-	std::string value2 = settings.get<std::string>("key2", "");
-	if (not (value2 == "value2"))
-		return false;
-
-	return true;
+	EXPECT_TRUE(settings.get<bool>("boolean_int_true", false));
+	EXPECT_FALSE(settings.get<bool>("boolean_int_false", true));
+	EXPECT_TRUE(settings.get<bool>("boolean_word_true", false));
+	EXPECT_FALSE(settings.get<bool>("boolean_word_false", true));
 }
 
-bool test_parse_utf8()
+TEST_F(IniTest, ResultOk)
 {
-	std::string const ini_data =
-		"name=Müller\n"
-		"forename=Strauß";
 	rsettings::Ini settings;
+	rsettings::Result result = settings.parse(ini_data());
 
-	settings.parse(ini_data);
-
-	if (settings.keys().size() != 2)
-		return false;
-
-	if (not settings.groups().empty())
-		return false;
-
-	std::string value1 = settings.get<std::string>("name", "");
-	if (not (value1 == "Müller"))
-		return false;
-
-	std::string value2 = settings.get<std::string>("forename", "");
-	if (not (value2 == "Strauß"))
-		return false;
-
-	return true;
+	EXPECT_TRUE(result.is_successful());
+	EXPECT_TRUE(result);
 }
 
-bool test_parse_result()
+TEST_F(IniTest, ResultFailEmptyGrpName)
 {
-	std::string const ini_data1 =
-		"name=Müller\n"
-		"forename=Strauß";
-
-	std::string const ini_data2 =
-		"name=Müller\n"
-		"forename Strauß";
-
-	std::string const ini_data3 =
-		"[grp\n"
-		"name=Müller\n"
-		"forename=Strauß";
-
 	rsettings::Ini settings;
+	rsettings::Result result = settings.parse("[]");
 
-	rsettings::Result result1 = settings.parse(ini_data1);
+	EXPECT_FALSE(result.is_successful());
+	EXPECT_FALSE(result);
 
-	if (not result1)
-		return false;
-
-	rsettings::Result result2 = settings.parse(ini_data2);
-	if (result2)
-		return false;
-
-	rsettings::Result result3 = settings.parse(ini_data3);
-	if (result3)
-		return false;
-
-	return true;
+	EXPECT_STREQ("Error in line 1: An empty string is not valid as group name.\n",
+			result.reason().c_str());
 }
 
-bool test_parse_groups()
+int main(int argc, char **argv)
 {
-	std::string const ini_data =
-		"r_key=r_val\n"
-		"[grp1]\n"
-		";start of the first group\n"
-		"g1_key=g1_val\n"
-		"[grp2]\n"
-		"g2_key=g2_val\n"
-		"g3_key=g3_val";
-	rsettings::Ini settings;
-
-	settings.parse(ini_data);
-	if (settings.keys().size() != 1)
-		return false;
-
-	if (settings.groups().size() != 2)
-		return false;
-
-	std::string value1 = settings.get<std::string>("r_key", "");
-	if (not (value1 == "r_val"))
-		return false;
-
-	settings.begin_group("grp1");
-
-	if (settings.keys().size() != 1)
-		return false;
-
-	if (settings.groups().size() != 2)
-		return false;
-
-	std::string value2 = settings.get<std::string>("g1_key", "");
-	if (not (value2 == "g1_val"))
-		return false;
-
-	settings.begin_group("grp2");
-
-	if (settings.keys().size() != 2)
-		return false;
-
-	if (settings.groups().size() != 2)
-		return false;
-
-	std::string value3 = settings.get<std::string>("g2_key", "");
-	if (not (value3 == "g2_val"))
-		return false;
-
-	std::string value4 = settings.get<std::string>("g3_key", "");
-	if (not (value4 == "g3_val"))
-		return false;
-
-	return true;
-}
-
-bool test_parse_errors()
-{
-	std::string const ini_data =
-		"r_key=r_val\n"
-		"[]\n"
-		";start of the first group\n"
-		"g1_key=g1_val\n"
-		"[grp2]\n"
-		"g2_key=g2_val\n"
-		"g3_key=g3_val";
-	rsettings::Ini settings;
-
-	rsettings::Result res = settings.parse(ini_data);
-	if (res.is_successful())
-		return false;
-
-	if (res.reason() != "Error in line 2: An empty string is not valid as "
-			"group name.\n")
-		return false;
-
-	return true;
-}
-
-bool test_bool()
-{
-	std::string const ini_data = "key=true";
-	rsettings::Ini settings;
-
-	settings.parse(ini_data);
-
-	if (settings.keys().size() != 1)
-		return false;
-
-	if (not settings.groups().empty())
-		return false;
-
-	bool value = settings.get<bool>("key", false);
-	if (not value)
-		return false;
-
-	return true;
-}
-
-int main()
-{
-	if (not test_init_Ini())
-		return 1;
-
-	if (not test_init_Ini())
-		return 2;
-
-	if (not test_add_global_keys())
-		return 3;
-
-	if (not test_parse_single_variable())
-		return 5;
-
-	if (not test_parse_two_variables())
-		return 6;
-
-	if (not test_parse_comments())
-		return 7;
-
-	if (not test_parse_utf8())
-		return 8;
-
-	if (not test_parse_groups())
-		return 9;
-
-	if (not test_parse_result())
-		return 10;
-
-	if (not test_parse_errors())
-		return 11;
-
-	if (not test_bool())
-		return 12;
-
-	return 0;
+	::testing::InitGoogleTest(&argc, argv);
+	return RUN_ALL_TESTS();
 }

@@ -171,7 +171,10 @@ public:
 
 		T type_element;
 		std::stringstream ss(it_key->second);
-		ss >> std::boolalpha >> type_element;
+		if (it_key->second.size() > 1)
+			ss >> std::boolalpha;
+
+		ss >> type_element;
 
 		return type_element;
 	}
