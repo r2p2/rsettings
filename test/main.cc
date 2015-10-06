@@ -113,23 +113,18 @@ TEST_F(IniTest, Boolean)
 
 TEST_F(IniTest, ResultOk)
 {
-	rsettings::Ini settings;
-	rsettings::Result result = settings.parse(ini_data());
-
-	EXPECT_TRUE(result.is_successful());
-	EXPECT_TRUE(result);
+	EXPECT_NO_THROW({
+		rsettings::Ini settings;
+		settings.parse(ini_data());
+	});
 }
 
 TEST_F(IniTest, ResultFailEmptyGrpName)
 {
-	rsettings::Ini settings;
-	rsettings::Result result = settings.parse("[]");
-
-	EXPECT_FALSE(result.is_successful());
-	EXPECT_FALSE(result);
-
-	EXPECT_STREQ("Error in line 1: An empty string is not valid as group name.\n",
-			result.reason().c_str());
+	EXPECT_THROW({
+		rsettings::Ini settings;
+		settings.parse("[]");
+	}, rsettings::ParserError);
 }
 
 int main(int argc, char **argv)

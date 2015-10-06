@@ -1,6 +1,6 @@
 #pragma once
 
-#include "result.hpp"
+#include "error.hpp"
 
 #include <map>
 #include <vector>
@@ -27,7 +27,7 @@ public:
 	{
 	}
 
-	Result parse(std::string const& ini)
+	void parse(std::string const& ini)
 	{
 		int line_nr = 0;
 
@@ -53,8 +53,7 @@ public:
 				size_t pos_bracket = line.find(']');
 				if (pos_bracket == std::string::npos)
 				{
-					return Result(line_nr,
-							"Missing square bracket "
+					throw ParserError("Missing square bracket "
 							"to end group name.");
 				}
 
@@ -66,8 +65,7 @@ public:
 				}
 				else
 				{
-					return Result(line_nr,
-							"An empty string is not "
+					throw ParserError("An empty string is not "
 							"valid as group name.");
 				}
 				continue;
@@ -85,22 +83,18 @@ public:
 				}
 				else
 				{
-					return Result(line_nr,
-							"An empty string is not "
+					throw ParserError("An empty string is not "
 							"valid as key name.");
 				}
 			}
 			else
 			{
-				return Result(line_nr,
-						"Non empty line does not contain "
+				throw ParserError("Non empty line does not contain "
 						"a valid key-value pair.");
 			}
 		}
 
 		end_group();
-
-		return Result();
 	}
 
 	std::string write()
