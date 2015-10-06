@@ -66,12 +66,15 @@ it will tell you why if possible.
 std::string init_data = "...";
 
 rsettings::Ini settings;
-rsettings::Result res = settings.read(ini_data);
 
-if (not res.is_successful())
+try
 {
-	std::cout << res.reason() << std::endl;
-	return;
+	settings.parse(ini_data);
+}
+catch (rsettings::ParserError const& e)
+{
+	std::cout << e.what() << std::endl;
+	exit(1);
 }
 
 bool value = settings.get<bool>("variable_name", false)
