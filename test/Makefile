@@ -13,7 +13,7 @@ libgtest.a: $(GTEST_DIR)/src/gtest-all.cc
 		-c $(GTEST_DIR)/src/gtest-all.cc
 	ar -rv libgtest.a gtest-all.o
 
-$(TARGET_PATH)/$(TARGET): main.cc ../include/rsettings/result.hpp \
+$(TARGET_PATH)/$(TARGET): main.cc ../include/rsettings/error.hpp \
 		../include/rsettings/ini.hpp libgtest.a
 	mkdir -p $(TARGET_PATH)
 	$(CXX) -isystem $(GTEST_DIR)/include \
