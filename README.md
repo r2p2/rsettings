@@ -1,4 +1,4 @@
-RSettings (1.0.1)
+RSettings (1.1.0)
 =================
 
 Is yet another ini file format parser which was created
